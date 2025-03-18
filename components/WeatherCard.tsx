@@ -1,26 +1,11 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 
-export interface WeatherData {
-  city: string;
-  temperature: number;
-  description: string;
-  wind_kph: number;
-  humidity: number;
-  icon: string;
-  forecast?: {
-    date: string;
-    temp: number;
-    description: string;
-    icon: string;
-  }[];
-}
-
 export function WeatherCard({ weather }: { weather: any }) {
   if (!weather || !weather.temperature) {
     return (
       <View style={styles.card}>
-        <Text style={styles.error}>⚠️ Dados meteorológicos não disponíveis</Text>
+        <Text style={styles.error}>⚠️ Não foi possível carregar os dados do tempo.</Text>
       </View>
     );
   }
@@ -61,6 +46,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
+    marginVertical: 10, 
+    width: "100%", 
   },
   city: { fontSize: 20, fontWeight: "bold", marginBottom: 5 },
   temp: { fontSize: 45, fontWeight: "bold", color: "#333" },

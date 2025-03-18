@@ -20,6 +20,6 @@ export function BuscarBar({ city, setCity }: BuscarBarProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { marginBottom: 10 },
+  container: { marginBottom: 10 , marginTop: 25},
   input: { borderWidth: 1, borderColor: "#ccc", padding: 10, borderRadius: 5 },
 });

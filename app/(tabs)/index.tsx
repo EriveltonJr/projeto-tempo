@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Text, ActivityIndicator, Button } from "react-native";
 import * as Location from "expo-location";
 import { useWeather } from "@/hooks/useWeather";
@@ -10,19 +10,27 @@ export default function HomeScreen() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    async function fetchLocation() {
+  // 🚀 Função para buscar a localização
+  const fetchLocation = async () => {
+    try {
       setLoading(true);
       let position = await Location.getCurrentPositionAsync({});
       setLocation({
         lat: position.coords.latitude,
         lon: position.coords.longitude,
       });
+    } catch (error) {
+      setErrorMsg("Erro ao obter localização.");
+    } finally {
       setLoading(false);
     }
-    fetchLocation();
+  };
+
+  useEffect(() => {
+    fetchLocation(); // 🔥 Obtém a localização quando a tela carrega
   }, []);
 
+  // 🚀 Obtém os dados meteorológicos
   const { weather, loading: weatherLoading, error: weatherError } = useWeather(
     location?.lat,
     location?.lon
@@ -31,12 +39,20 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Previsão do Tempo</Text>
-      {weather && <WeatherCard weather={weather} />}
-      <Button title="Atualizar Localização" onPress={() => location} />
+
+      {loading || weatherLoading ? (
+        <ActivityIndicator size="large" color="#60a5fa" />
+      ) : weather ? (
+        <WeatherCard weather={weather} />
+      ) : (
+        <Text style={styles.infoText}>Não há dados meteorológicos disponíveis.</Text>
+      )}
+
+      {/* 🔥 Agora o botão atualiza corretamente a localização */}
+      <Button title="Atualizar Localização" onPress={fetchLocation} color="#3498db" />
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

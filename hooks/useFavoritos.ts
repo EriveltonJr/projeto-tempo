@@ -1,9 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from "react";
-import { WeatherData } from "@/components/WeatherCard"; // ✅ Agora está correto!
 
 export function useFavoritos() {
-  const [favoritos, setFavoritos] = useState<WeatherData[]>([]);
+  const [favoritos, setFavoritos] = useState<any[]>([]);
 
   useEffect(() => {
     loadFavoritos();
@@ -22,19 +21,23 @@ export function useFavoritos() {
     }
   };
 
-  const addFavorito = async (weather: WeatherData) => {
+  const addFavorito = async (weather: any) => {
     try {
       const storedFavoritos = await AsyncStorage.getItem("favoritos");
       let favoritosAtuais = storedFavoritos ? JSON.parse(storedFavoritos) : [];
 
-      if (favoritosAtuais.some((fav: WeatherData) => fav.city === weather.city)) {
-        return; 
+      if (favoritosAtuais.some((fav: any) => fav.city.toLowerCase() === weather.city.toLowerCase())) {
+        console.log("⚠️ Cidade já está nos favoritos:", weather.city);
+        return;
       }
 
       const updatedFavoritos = [...favoritosAtuais, weather];
       await AsyncStorage.setItem("favoritos", JSON.stringify(updatedFavoritos));
 
       setFavoritos(updatedFavoritos);
+      console.log("✅ Cidade adicionada aos favoritos:", weather.city);
+
+      loadFavoritos();
     } catch (error) {
       console.error("Erro ao adicionar favorito:", error);
     }
@@ -45,10 +48,13 @@ export function useFavoritos() {
       const storedFavoritos = await AsyncStorage.getItem("favoritos");
       let favoritosAtuais = storedFavoritos ? JSON.parse(storedFavoritos) : [];
 
-      const updatedFavoritos = favoritosAtuais.filter((item: WeatherData) => item.city !== city);
+      const updatedFavoritos = favoritosAtuais.filter((item: any) => item.city.toLowerCase() !== city.toLowerCase());
       await AsyncStorage.setItem("favoritos", JSON.stringify(updatedFavoritos));
 
       setFavoritos(updatedFavoritos);
+      console.log("🚀 Cidade removida:", city);
+
+      loadFavoritos();
     } catch (error) {
       console.error("Erro ao remover favorito:", error);
     }
