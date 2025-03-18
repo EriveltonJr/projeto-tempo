@@ -2,37 +2,57 @@ import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
 
 export interface WeatherData {
-  id?: string;
   city: string;
   temperature: number;
   description: string;
   wind_kph: number;
   humidity: number;
   icon: string;
+  forecast?: {
+    date: string;
+    temp: number;
+    description: string;
+    icon: string;
+  }[];
 }
 
-export function WeatherCard({ weather }: { weather: WeatherData }) {
-  if (!weather) {
-    return <Text style={styles.error}>❌ Dados meteorológicos não disponíveis</Text>;
+export function WeatherCard({ weather }: { weather: any }) {
+  if (!weather || !weather.temperature) {
+    return (
+      <View style={styles.card}>
+        <Text style={styles.error}>⚠️ Dados meteorológicos não disponíveis</Text>
+      </View>
+    );
   }
 
   return (
     <View style={styles.card}>
       <Text style={styles.city}>{weather.city}</Text>
-      <Image source={{ uri: `https:${weather.icon}` }} style={styles.icon} />
+      <Image source={{ uri: weather.icon }} style={styles.icon} />
       <Text style={styles.temp}>{weather.temperature}°C</Text>
       <Text style={styles.condition}>{weather.description}</Text>
-      <View style={styles.details}>
-        <Text>💨 {weather.wind_kph} km/h</Text>
-        <Text>💧 {weather.humidity}%</Text>
-      </View>
+
+      {weather.forecast && Array.isArray(weather.forecast) && weather.forecast.length > 0 ? (
+        <View style={styles.forecastContainer}>
+          <Text style={styles.forecastTitle}>Previsão para os próximos dias:</Text>
+          {weather.forecast.map((day: any, index: number) => (
+            <View key={index} style={styles.forecastItem}>
+              <Text>{day.date}</Text>
+              <Image source={{ uri: day.icon }} style={styles.iconSmall} />
+              <Text>{day.temp}°C - {day.description}</Text>
+            </View>
+          ))}
+        </View>
+      ) : (
+        <Text style={styles.noForecast}>🔴 Dados de previsão indisponíveis</Text>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#1e293b",
+    backgroundColor: "#f5f7fa",
     padding: 20,
     borderRadius: 15,
     alignItems: "center",
@@ -41,38 +61,15 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
-    marginVertical: 10,
   },
-  city: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 5,
-    color: "#ffffff",
-  },
-  temp: {
-    fontSize: 45,
-    fontWeight: "bold",
-    color: "#ffffff",
-  },
-  condition: {
-    fontSize: 18,
-    color: "#60a5fa",
-    marginBottom: 10,
-  },
-  details: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-    paddingHorizontal: 20,
-    marginTop: 10,
-  },
-  icon: {
-    width: 80,
-    height: 80,
-    marginVertical: 10,
-  },
-  error: {
-    color: "red",
-    textAlign: "center",
-  },
+  city: { fontSize: 20, fontWeight: "bold", marginBottom: 5 },
+  temp: { fontSize: 45, fontWeight: "bold", color: "#333" },
+  condition: { fontSize: 18, color: "#555", marginBottom: 10 },
+  icon: { width: 80, height: 80, marginVertical: 10 },
+  iconSmall: { width: 50, height: 50, marginTop: 5 },
+  forecastContainer: { marginTop: 15, alignItems: "center" },
+  forecastTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 5 },
+  forecastItem: { marginBottom: 10, alignItems: "center" },
+  noForecast: { fontSize: 14, color: "red", textAlign: "center", marginTop: 10 },
+  error: { color: "red", textAlign: "center" },
 });

@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState, useEffect } from "react";
-import { WeatherData } from "@/components/WeatherCard";
+import { WeatherData } from "@/components/WeatherCard"; // ✅ Agora está correto!
 
 export function useFavoritos() {
   const [favoritos, setFavoritos] = useState<WeatherData[]>([]);
@@ -48,7 +48,6 @@ export function useFavoritos() {
       const updatedFavoritos = favoritosAtuais.filter((item: WeatherData) => item.city !== city);
       await AsyncStorage.setItem("favoritos", JSON.stringify(updatedFavoritos));
 
-      // 🔥 Atualiza o estado imediatamente após a remoção
       setFavoritos(updatedFavoritos);
     } catch (error) {
       console.error("Erro ao remover favorito:", error);
