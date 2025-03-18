@@ -1,51 +1,38 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import React from "react";
+import { View, Text, Image, StyleSheet } from "react-native";
 
 export interface WeatherData {
-  location: {
-    name: string;
-    country: string;
-    localtime: string;
-  };
-  current: {
-    temp_c: number;
-    wind_kph: number;
-    humidity: number;
-    condition: {
-      text: string;
-      icon: string;
-    };
-  };
+  id?: string;
+  city: string;
+  temperature: number;
+  description: string;
+  wind_kph: number;
+  humidity: number;
+  icon: string;
 }
 
 export function WeatherCard({ weather }: { weather: WeatherData }) {
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  if (!weather || !weather.current || !weather.location) {
+  if (!weather) {
     return <Text style={styles.error}>❌ Dados meteorológicos não disponíveis</Text>;
   }
 
   return (
     <View style={styles.card}>
-      <Text style={styles.city}>{weather.location.name}, {weather.location.country}</Text>
-      <Image source={{ uri: weather.current.condition.icon }} style={styles.icon} />
-      <Text style={styles.temp}>{weather.current.temp_c}°C</Text>
-      <Text style={styles.condition}>{weather.current.condition.text}</Text>
+      <Text style={styles.city}>{weather.city}</Text>
+      <Image source={{ uri: `https:${weather.icon}` }} style={styles.icon} />
+      <Text style={styles.temp}>{weather.temperature}°C</Text>
+      <Text style={styles.condition}>{weather.description}</Text>
       <View style={styles.details}>
-        <Text>💨 {weather.current.wind_kph} km/h</Text>
-        <Text>💧 {weather.current.humidity}%</Text>
+        <Text>💨 {weather.wind_kph} km/h</Text>
+        <Text>💧 {weather.humidity}%</Text>
       </View>
-      
-      <TouchableOpacity style={styles.favoriteButton} onPress={() => setIsFavorite(!isFavorite)}>
-        <Text style={styles.favoriteText}>{isFavorite ? "★ Remover dos Favoritos" : "☆ Adicionar aos Favoritos"}</Text>
-      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#f5f7fa",
+    backgroundColor: "#1e293b",
     padding: 20,
     borderRadius: 15,
     alignItems: "center",
@@ -54,20 +41,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 5,
+    marginVertical: 10,
   },
   city: {
     fontSize: 20,
     fontWeight: "bold",
     marginBottom: 5,
+    color: "#ffffff",
   },
   temp: {
     fontSize: 45,
     fontWeight: "bold",
-    color: "#333",
+    color: "#ffffff",
   },
   condition: {
     fontSize: 18,
-    color: "#555",
+    color: "#60a5fa",
     marginBottom: 10,
   },
   details: {
@@ -81,17 +70,6 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     marginVertical: 10,
-  },
-  favoriteButton: {
-    marginTop: 15,
-    backgroundColor: "#FFD700",
-    padding: 10,
-    borderRadius: 10,
-  },
-  favoriteText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
   },
   error: {
     color: "red",

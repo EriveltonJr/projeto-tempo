@@ -1,13 +1,9 @@
-import { useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Weather } from '@/types';
-
-const FavoritoS_KEY = 'Favoritos';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState, useEffect } from "react";
+import { WeatherData } from "@/components/WeatherCard";
 
 export function useFavoritos() {
-  const [Favoritos, setFavoritos] = useState<Weather[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [favoritos, setFavoritos] = useState<WeatherData[]>([]);
 
   useEffect(() => {
     loadFavoritos();
@@ -15,33 +11,49 @@ export function useFavoritos() {
 
   const loadFavoritos = async () => {
     try {
-      const FavoritosJson = await AsyncStorage.getItem(FavoritoS_KEY);
-      if (FavoritosJson) {
-        setFavoritos(JSON.parse(FavoritosJson));
+      const storedFavoritos = await AsyncStorage.getItem("favoritos");
+      if (storedFavoritos) {
+        setFavoritos(JSON.parse(storedFavoritos));
+      } else {
+        setFavoritos([]);
       }
-    } catch (err) {
-      setError('Failed to load Favoritos');
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error("Erro ao carregar favoritos:", error);
     }
   };
 
-  const toggleFavorito = async (weather: Weather) => {
+  const addFavorito = async (weather: WeatherData) => {
     try {
-      const newFavoritos = isFavorito(weather.id)
-        ? Favoritos.filter((f) => f.id !== weather.id)
-        : [...Favoritos, weather];
-      
-      await AsyncStorage.setItem(FavoritoS_KEY, JSON.stringify(newFavoritos));
-      setFavoritos(newFavoritos);
-    } catch (err) {
-      setError('Failed to update Favoritos');
+      const storedFavoritos = await AsyncStorage.getItem("favoritos");
+      let favoritosAtuais = storedFavoritos ? JSON.parse(storedFavoritos) : [];
+
+      if (favoritosAtuais.some((fav: WeatherData) => fav.city === weather.city)) {
+        return; 
+      }
+
+      const updatedFavoritos = [...favoritosAtuais, weather];
+      await AsyncStorage.setItem("favoritos", JSON.stringify(updatedFavoritos));
+
+      setFavoritos(updatedFavoritos);
+    } catch (error) {
+      console.error("Erro ao adicionar favorito:", error);
     }
   };
 
-  const isFavorito = (id: number) => {
-    return Favoritos.some((f) => f.id === id);
+  const removeFavorito = async (city: string) => {
+    try {
+      const storedFavoritos = await AsyncStorage.getItem("favoritos");
+      let favoritosAtuais = storedFavoritos ? JSON.parse(storedFavoritos) : [];
+
+      const updatedFavoritos = favoritosAtuais.filter((item: WeatherData) => item.city !== city);
+      await AsyncStorage.setItem("favoritos", JSON.stringify(updatedFavoritos));
+
+      // 🔥 Atualiza o estado imediatamente após a remoção
+      setFavoritos(updatedFavoritos);
+    } catch (error) {
+      console.error("Erro ao remover favorito:", error);
+    }
   };
 
-  return { Favoritos, loading, error, toggleFavorito, isFavorito };
+  return { favoritos, addFavorito, removeFavorito, loadFavoritos };
 }

@@ -1,37 +1,25 @@
-import { TextInput, StyleSheet, Keyboard, TouchableWithoutFeedback, View } from "react-native";
+import React from "react";
+import { TextInput, StyleSheet, View } from "react-native";
 
 interface BuscarBarProps {
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
+  city: string;
+  setCity: (text: string) => void; 
 }
 
-export function BuscarBar({ value, onChangeText, placeholder }: BuscarBarProps) {
+export function BuscarBar({ city, setCity }: BuscarBarProps) {
   return (
-      <View style={styles.container}>
-        <TextInput
-          style={styles.input}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor="#71717a"
-          returnKeyType="done" 
-        />
-      </View>
+    <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        placeholder="Digite o nome da cidade"
+        value={city}
+        onChangeText={(text) => setCity(text)} 
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%", 
-  },
-  input: {
-    backgroundColor: "#1a1b1e",
-    color: "#fff",
-    padding: 15,
-    borderRadius: 10,
-    fontSize: 16,
-    marginBottom: 20,
-    marginTop: 20,
-  },
+  container: { marginBottom: 10 },
+  input: { borderWidth: 1, borderColor: "#ccc", padding: 10, borderRadius: 5 },
 });

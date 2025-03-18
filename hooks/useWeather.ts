@@ -54,7 +54,6 @@ export function useWeather(lat?: number, lon?: number) {
           setError(`Erro da API: ${data.error.message}`);
           setWeather(null);
         } else {
-          // ✅ Convertendo os dados para o formato correto
           const formattedWeather: WeatherData = {
             location: {
               name: data.location.name,

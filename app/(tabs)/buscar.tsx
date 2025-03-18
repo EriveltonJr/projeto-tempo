@@ -1,42 +1,72 @@
-import { useState, useEffect } from "react";
-import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { useState, useEffect, useCallback } from "react";
+import { View, StyleSheet, ActivityIndicator, Button, Alert, Keyboard, TouchableWithoutFeedback 
+} from "react-native";
+import { useFocusEffect } from "@react-navigation/native"; 
 import { BuscarBar } from "@/components/BuscarBar";
 import { WeatherCard } from "@/components/WeatherCard";
 import { useWeatherByCity } from "@/hooks/useWeatherByCity";
+import { useFavoritos } from "@/hooks/useFavoritos";
 import { ErrorMessage } from "@/components/ErrorMessage";
-import { WeatherData } from "@/hooks/useWeather";
 
 export default function BuscarScreen() {
-  const [city, setCity] = useState("");
-  const { weather, loading, error } = useWeatherByCity(city);
+  const [city, setCity] = useState<string>(""); 
+  const [debouncedCity, setDebouncedCity] = useState<string>(""); 
+  const { weather, loading, error } = useWeatherByCity(debouncedCity);
+  const { favoritos, addFavorito } = useFavoritos();
 
-  // Garantir que a requisição só seja feita se a cidade for válida
   useEffect(() => {
-    if (city.length > 0) {
-      // Aqui pode-se adicionar lógica de debounce ou otimização, para evitar chamadas excessivas à API
-    }
+    const handler = setTimeout(() => {
+      setDebouncedCity(city);
+    }, 500);
+
+    return () => clearTimeout(handler);
   }, [city]);
 
+  useFocusEffect(
+    useCallback(() => {
+      return () => setCity(""); 
+    }, [])
+  );
+
+  const handleAddToFavorites = () => {
+    if (!weather) return;
+
+    if (favoritos.some((fav) => fav.city === weather.city)) {
+      Alert.alert("Atenção", "Essa cidade já está nos favoritos!");
+    } else {
+      addFavorito({
+        city: weather.city,
+        temperature: weather.temperature,
+        description: weather.description,
+        wind_kph: weather.wind_kph,
+        humidity: weather.humidity,
+        icon: weather.icon,
+      });
+      Alert.alert("Sucesso", "Cidade adicionada aos favoritos!");
+    }
+  };
+
+  const dismissKeyboard = () => {
+    Keyboard.dismiss();
+  };
+
   return (
-    <View style={styles.container}>
-      <BuscarBar value={city} onChangeText={setCity} placeholder="Buscar por cidade..." />
-
-      {loading && <ActivityIndicator size="large" color="#FFF" />}
-
-      {error ? (
-        <ErrorMessage message={error} />
-      ) : (
-        // Apenas renderiza o WeatherCard se `weather` estiver presente
-        weather && <WeatherCard weather={weather} />
-      )}
-    </View>
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
+      <View style={styles.container}>
+        <BuscarBar city={city} setCity={setCity} />
+        {loading && <ActivityIndicator size="large" color="#ffffff" />}
+        {error && <ErrorMessage message={error} />}
+        {weather && (
+          <>
+            <WeatherCard weather={weather} />
+            <Button title="Adicionar aos Favoritos" onPress={handleAddToFavorites} color="#3498db"/>
+          </>
+        )}
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#13141a",
-    padding: 20,
-  },
+  container: { flex: 1, padding: 20 },
 });

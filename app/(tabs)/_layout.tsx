@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Cloud, Heart, Search } from 'lucide-react-native';
+import { Cloud, Star, Search } from 'lucide-react-native';
 
 export default function TabLayout() {
   return (
@@ -16,7 +16,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Weather',
+          title: 'Clima',
           tabBarIcon: ({ size, color }) => <Cloud size={size} color={color} />,
         }}
       />
@@ -31,7 +31,7 @@ export default function TabLayout() {
         name="favoritos"
         options={{
           title: 'Favoritos',
-          tabBarIcon: ({ size, color }) => <Heart size={size} color={color} />,
+          tabBarIcon: ({ size, color }) => <Star size={size} color={color} />,
         }}
       />
     </Tabs>
